@@ -1,0 +1,35 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Research Latest MCP Protocol Updates",
+        "description": "Research latest MCP protocol updates using practices defined in @research/. Replace the latest research session with your current findings and update the date in the filename. Document any critical changes affecting our image analysis server implementation.",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "details": "Follow the research methodology outlined in @research/ to systematically gather information on the latest MCP protocol updates. Use the research tool to review official release notes, security advisories, SDK documentation, and community analyses. Focus on identifying breaking changes, new features, and enhanced security requirements. Pay special attention to changes impacting our image analysis server implementation, such as structured content handling and authentication flows. Replace the most recent research session file with your findings, ensuring the filename reflects the current date (e.g., research-session-YYYY-MM-DD.md). Clearly document any protocol changes that require downstream implementation work, and link these findings to the appropriate implementation tracking task. Adhere to best practices for technical research documentation: cite all sources, summarize critical impacts, and highlight actionable items for engineering teams.",
+        "testStrategy": "1. Verify that the research session file is updated with the current date and replaces the previous session. 2. Ensure the file comprehensively covers all protocol changes, including breaking changes, new features, and security updates. 3. Confirm that all findings are clearly cited and actionable impacts on the image analysis server are documented. 4. Check that the research methodology in @research/ was followed and referenced. 5. Validate that the findings are linked to the appropriate implementation tracking task.",
+        "subtasks": []
+      },
+      {
+        "id": 2,
+        "title": "Implement MCP Protocol Updates in Image Analysis Server",
+        "description": "Apply the latest MCP protocol research findings to update the image analysis server implementation. Review the most recent research documentation and implement all necessary changes to maintain protocol compliance.",
+        "status": "pending",
+        "dependencies": [
+          1
+        ],
+        "priority": "high",
+        "details": "This task involves applying the research findings from Task 1 to update our image analysis server implementation. Follow these steps:\n\n1. Review the research documentation from Task 1 thoroughly to understand all protocol changes.\n2. Create a backup of the current implementation before making changes.\n3. Update src/index.ts to implement the required changes:\n   - Remove any JSON-RPC batching functionality if present (breaking change)\n   - Implement structured tool output support\n   - Add elicitation feature support\n   - Integrate resource links functionality\n   - Update OAuth security implementation to comply with new requirements\n\n4. Update related files that interact with the MCP protocol:\n   - Modify request/response handlers in src/handlers/\n   - Update authentication middleware in src/middleware/\n   - Revise data models in src/models/ to accommodate new features\n   - Update API endpoints in src/routes/ as needed\n\n5. Update any configuration files to reflect new protocol requirements.\n6. Add appropriate error handling for deprecated features.\n7. Document all changes made in code comments and update relevant API documentation.\n8. Ensure backward compatibility where possible, with clear deprecation notices.\n9. Implement any new security measures identified in the research phase.\n10. Optimize performance for any new protocol features that might impact system resources.\n\nKey considerations:\n- Maintain a clean separation of concerns between protocol handling and business logic\n- Follow established coding standards and patterns in the existing codebase\n- Consider implementing feature flags for gradual rollout of new features\n- Ensure proper error handling for all protocol interactions\n- Add appropriate logging for debugging protocol-related issues",
+        "testStrategy": "1. Create unit tests for each updated component:\n   - Test handling of new protocol features\n   - Verify proper rejection of deprecated features\n   - Test error handling for protocol violations\n   - Validate security implementation\n\n2. Develop integration tests that verify end-to-end protocol compliance:\n   - Test complete request/response cycles\n   - Verify authentication and authorization flows\n   - Test handling of edge cases and error conditions\n\n3. Perform manual testing:\n   - Use Postman or similar tools to send requests with the new protocol format\n   - Verify responses match expected protocol structure\n   - Test with invalid requests to ensure proper error handling\n\n4. Security testing:\n   - Verify that all new security requirements are properly implemented\n   - Test authentication flows with valid and invalid credentials\n   - Check for proper handling of authorization scopes\n\n5. Performance testing:\n   - Measure response times before and after changes\n   - Verify that new protocol features don't introduce significant overhead\n   - Test under load to ensure stability\n\n6. Compatibility testing:\n   - Test with existing clients to ensure backward compatibility\n   - Verify that deprecation notices are properly communicated\n\n7. Documentation verification:\n   - Ensure all changes are properly documented\n   - Verify that API documentation accurately reflects the updated implementation\n\n8. Code review:\n   - Have another developer review the changes for correctness and adherence to best practices\n   - Verify that all research findings have been properly addressed",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-08-03T23:00:43.327Z",
+      "updated": "2025-08-03T23:10:08.758Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

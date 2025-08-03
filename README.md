@@ -5,7 +5,11 @@ An MCP server for analyzing images using OpenRouter vision models. This server p
 ## Installation
 
 ```bash
-npm install @catalystneuro/mcp_read_images
+git clone https://github.com/asilliahmet/mcp_read_images.git
+cd mcp_read_images
+npm install
+npm run build
+echo "Your node script is at: $(pwd)/build/index.js" 
 ```
 
 ## Configuration
@@ -18,7 +22,10 @@ Add the server to your MCP settings file (usually located at `~/Library/Applicat
 {
   "mcpServers": {
     "read_images": {
-      "command": "read_images",
+      "command": "node",
+      "args": [
+        "/YOUR/PATH/FROM/ECHO/COMMAND/build/index.js"
+      ],
       "env": {
         "OPENROUTER_API_KEY": "your-api-key-here",
         "OPENROUTER_MODEL": "anthropic/claude-3.5-sonnet"  // optional, defaults to claude-3.5-sonnet
@@ -94,10 +101,28 @@ Each error will return a descriptive message to help diagnose the issue.
 To build from source:
 
 ```bash
-git clone https://github.com/catalystneuro/mcp_read_images.git
+git clone https://github.com/asilliahmet/mcp_read_images.git
 cd mcp_read_images
 npm install
 npm run build
+echo "Your node script is at: $(pwd)/build/index.js" 
+```
+
+And then change your mcp.json file like this:
+```json
+{
+  "mcpServers": {
+     "read-images": {
+      "command": "node",
+      "args": [
+        "/YOUR/PATH/FROM/ECHO/COMMAND/build/index.js"
+      ],
+      "env": {
+        "OPENROUTER_API_KEY": "your-openrouter-api-key-here"
+      }
+    }
+  }
+}
 ```
 
 ## License

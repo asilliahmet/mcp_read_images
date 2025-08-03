@@ -1,0 +1,149 @@
+<context>
+# Overview  
+The MCP Read Images project is a Model Context Protocol (MCP) server that enables AI assistants and other tools to analyze images using state-of-the-art vision models through OpenRouter's API. This tool bridges the gap between local images and AI vision capabilities, allowing users to get detailed descriptions, answer questions about images, and extract information from visual content.
+
+The project solves the problem of integrating image analysis capabilities into AI workflows and development environments like Cursor, providing a standardized way to process and understand visual content programmatically.
+
+# Core Features  
+1. **MCP Server Implementation**
+   - Fully compliant MCP protocol server that communicates via JSON-RPC over stdio
+   - Proper initialization, tool listing, and tool execution handlers
+   - Robust error handling and protocol compliance
+
+2. **Image Analysis Tool**
+   - Accepts absolute file paths to images for analysis
+   - Supports custom questions about images ("What's in this image?", "Describe the colors", etc.)
+   - Configurable AI models via OpenRouter (defaults to Claude 3.5 Sonnet)
+   - Automatic image optimization (resizing, compression) for efficient API calls
+
+3. **Smart Image Processing**
+   - Automatic image resizing to keep API costs reasonable while maintaining quality
+   - JPEG compression with quality optimization
+   - Support for various image formats through Sharp library
+   - Base64 encoding for API transmission
+
+4. **OpenRouter Integration**
+   - Seamless integration with OpenRouter's vision models
+   - Support for multiple vision models (Claude, GPT-4 Vision, etc.)
+   - Proper API key management and error handling
+   - Cost-effective image processing through intelligent resizing
+
+# User Experience  
+**Primary Users:**
+- AI assistant users (Cursor, Claude, etc.) who need image analysis capabilities
+- Developers building applications that need vision AI integration
+- Content creators who want to automate image description and analysis
+
+**Key User Flows:**
+1. User calls MCP tool with image path → Server processes image → Returns AI analysis
+2. Developer integrates MCP server into their application → Enables image analysis features
+3. AI assistant uses the tool to help users understand visual content in their projects
+
+**Integration Experience:**
+- Simple configuration through environment variables (OPENROUTER_API_KEY)
+- Easy installation and setup process
+- Clear error messages and debugging information
+</context>
+<PRD>
+# Technical Architecture  
+**System Components:**
+- **MCP Server Core**: JSON-RPC communication handler with proper protocol compliance
+- **Image Processing Pipeline**: Sharp-based image optimization and conversion
+- **OpenRouter Client**: HTTP client for vision model API calls
+- **Error Management**: Comprehensive error handling with proper MCP error codes
+
+**Data Models:**
+- Image metadata extraction and processing
+- Base64 encoded image transmission
+- Structured API request/response handling
+- MCP protocol message formatting
+
+**APIs and Integrations:**
+- OpenRouter Chat Completions API with vision support
+- MCP Protocol (JSON-RPC 2.0 over stdio)
+- Local filesystem access for image reading
+- Support for multiple vision models
+
+**Infrastructure Requirements:**
+- Node.js runtime environment
+- TypeScript compilation support
+- Sharp library for image processing
+- OpenRouter API access and key management
+
+# Development Roadmap  
+**Phase 1: Core Functionality (Current MVP)**
+- ✅ Basic MCP server implementation
+- ✅ Image analysis tool with OpenRouter integration
+- ✅ Image processing and optimization
+- ✅ Error handling and protocol compliance
+
+**Phase 2: Enhanced Features**
+- Add support for batch image processing
+- Implement image URL analysis (remote images)
+- Add support for additional vision models beyond OpenRouter
+- Enhanced error reporting and debugging tools
+
+**Phase 3: Advanced Capabilities**
+- OCR text extraction from images
+- Image comparison and similarity analysis
+- Support for video frame analysis
+- Image generation capabilities integration
+- Caching layer for repeated image analysis
+
+**Phase 4: Developer Experience**
+- Comprehensive documentation and examples
+- Testing framework and automated tests
+- Performance monitoring and optimization
+- Integration guides for popular development environments
+
+# Logical Dependency Chain
+**Foundation Layer:**
+1. MCP protocol compliance and communication
+2. Image processing pipeline (Sharp integration)
+3. OpenRouter API client implementation
+
+**Core Functionality:**
+4. Image analysis tool implementation
+5. Error handling and validation
+6. Configuration management
+
+**Enhanced Features:**
+7. Additional image sources (URLs, base64)
+8. Multiple model support
+9. Batch processing capabilities
+
+**Advanced Features:**
+10. OCR and specialized analysis
+11. Performance optimization
+12. Monitoring and analytics
+
+# Risks and Mitigations  
+**Technical Challenges:**
+- **API Rate Limits**: Implement intelligent caching and rate limiting
+- **Image Size/Cost Management**: Continue optimizing image processing pipeline
+- **Model Availability**: Add fallback models and error handling
+
+**MVP Considerations:**
+- Focus on core image analysis functionality first
+- Ensure robust error handling for production use
+- Maintain backwards compatibility as features are added
+
+**Resource Constraints:**
+- OpenRouter API costs - optimize image processing to minimize token usage
+- Memory usage for large images - implement streaming or chunked processing
+- Network reliability - add retry logic and timeout handling
+
+# Appendix  
+**Technical Specifications:**
+- MCP Protocol Version: 2024-11-05
+- Supported Image Formats: JPEG, PNG, WebP, GIF, TIFF (via Sharp)
+- Maximum Image Dimension: 400px (configurable)
+- Default JPEG Quality: 60% (configurable)
+- Default Model: anthropic/claude-3.5-sonnet
+
+**Research Findings:**
+- Sharp library provides excellent image processing performance
+- OpenRouter offers cost-effective access to multiple vision models
+- MCP protocol enables seamless integration with AI assistants
+- Base64 encoding is the most reliable method for image transmission to vision APIs
+</PRD>
