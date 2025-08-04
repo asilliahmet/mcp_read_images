@@ -50,7 +50,20 @@ class McpError extends Error {
   }
 }
 
-// OpenRouter API key will be checked when actually used
+// OpenAI API key will be checked when actually used
+
+const checkOpenaiKey = ()=>{
+  const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+  if (!OPENAI_API_KEY) {
+    process.emit("SIGINT")
+    console.error("OPENAI_API_KEY environment variable is required")
+    throw new McpError(
+      'MissingApiKey',
+      'OPENAI_API_KEY environment variable is required'
+    );
+    
+  }
+}
 
 async function analyzeImage(imagePath: string, question?: string, model?: string): Promise<string> {
   // Validate absolute path
@@ -70,8 +83,8 @@ async function analyzeImage(imagePath: string, question?: string, model?: string
     console.error('Image metadata:', metadata);
     
     // Calculate dimensions to keep base64 size reasonable
-    const MAX_DIMENSION = 400;
-    const JPEG_QUALITY = 60;
+    const MAX_DIMENSION = 1024; // Increased for better quality with OpenAI
+    const JPEG_QUALITY = 85; // Higher quality for better detection
     let resizedBuffer = imageBuffer;
     
     if (metadata.width && metadata.height) {
@@ -94,9 +107,36 @@ async function analyzeImage(imagePath: string, question?: string, model?: string
 
     const base64Image = resizedBuffer.toString('base64');
     
-    // Analyze with OpenRouter
+    // Check for API key when actually needed
+    const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+    if (!OPENAI_API_KEY) {
+      throw new McpError(
+        'MissingApiKey',
+        'OPENAI_API_KEY environment variable is required'
+      );
+    }
+
+    // Get model from environment or use default
+    const selectedModel = model || process.env.OPENAI_MODEL || "gpt-4.1";
+    
+    // Validate model is a vision-capable model
+    const validModels = [
+      'gpt-4.1',          // Latest flagship model (April 2025) - 1M context
+      'gpt-4.1-mini',     // Faster, cost-effective version of 4.1
+      'gpt-4.1-nano',     // Smallest version of 4.1
+      'gpt-4o',           // Previous flagship model
+      'gpt-4o-mini',      // Faster, cost-effective
+      'gpt-4-turbo',      // Previous generation
+      'gpt-4',            // Original GPT-4
+      'gpt-4-vision-preview' // Deprecated but still supported
+    ];
+    if (!validModels.includes(selectedModel)) {
+      console.error(`Warning: Model '${selectedModel}' may not support vision. Supported models: ${validModels.join(', ')}`);
+    }
+    
+    // Analyze with OpenAI
     const requestBody = {
-      model: model || "anthropic/claude-3.5-sonnet",
+      model: selectedModel,
       messages: [
         {
           role: "user",
@@ -108,32 +148,24 @@ async function analyzeImage(imagePath: string, question?: string, model?: string
             {
               type: "image_url",
               image_url: {
-                url: `data:image/jpeg;base64,${base64Image}`
+                url: `data:image/jpeg;base64,${base64Image}`,
+                detail: "high" // Use high detail for better design screenshot analysis
               }
             }
           ]
         }
-      ]
+      ],
+      max_tokens: 1000
     };
 
-    // Check for API key when actually needed
-    const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-    if (!OPENROUTER_API_KEY) {
-      throw new McpError(
-        'MissingApiKey',
-        'OPENROUTER_API_KEY environment variable is required'
-      );
-    }
+    console.error('Sending request to OpenAI...');
 
-    console.error('Sending request to OpenRouter...');
-
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://github.com/asilliahmet/mcp_read_images',
-        'X-Title': 'Image Analysis Tool'
+        "X-HTTP-Referer": "https://github.com/asilliahmet/mcp_read_images"
       },
       body: JSON.stringify(requestBody)
     });
@@ -144,11 +176,11 @@ async function analyzeImage(imagePath: string, question?: string, model?: string
     console.error('Response text:', responseText);
     
     if (!response.ok) {
-      throw new Error(`OpenRouter API error: ${response.statusText}\nDetails: ${responseText}`);
+      throw new Error(`OpenAI API error: ${response.statusText}\nDetails: ${responseText}`);
     }
     
     const analysis = JSON.parse(responseText);
-    console.error('OpenRouter API response:', JSON.stringify(analysis, null, 2));
+    console.error('OpenAI API response:', JSON.stringify(analysis, null, 2));
     return analysis.choices[0].message.content;
   } catch (error) {
     console.error('Error processing image:', error);
@@ -209,7 +241,7 @@ class ImageAnalysisServer {
       tools: [
         {
           name: 'analyze_image',
-          description: 'Analyze an image using OpenRouter vision models (default: anthropic/claude-3.5-sonnet)',
+          description: 'Analyze an image using OpenAI vision models (default: gpt-4.1)',
           inputSchema: {
             type: 'object',
             properties: {
@@ -223,7 +255,7 @@ class ImageAnalysisServer {
               },
               model: {
                 type: 'string',
-                description: 'OpenRouter model to use (e.g., anthropic/claude-3-opus-20240229)'
+                description: 'OpenAI model to use (e.g., gpt-4.1, gpt-4.1-mini, gpt-4o, gpt-4o-mini)'
               }
             },
             required: ['image_path']
@@ -234,6 +266,8 @@ class ImageAnalysisServer {
 
     // Call Tool Handler
     this.handlers.set('tools/call', async (request: McpRequest<CallToolRequest>) => {
+      checkOpenaiKey();
+
       if (request.params.name !== 'analyze_image') {
         throw new McpError(
           'MethodNotFound',
